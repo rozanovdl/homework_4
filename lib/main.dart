@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -28,7 +29,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<String> nav = ['Список 1', 'Список 2'];
-
   Map<String, dynamic> data = {
     'Мои фото': [
       'https://picsum.photos/1200/501',
@@ -63,28 +63,61 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text('Homework example'),
-          bottom: TabBar(
-            tabs: nav.map((String item) => Tab(text: item)).toList()
-          ),
+          bottom:
+              TabBar(tabs: nav.map((String item) => Tab(text: item)).toList()),
         ),
-        body: TabBarView(children: [
-          ListView(
-            key: PageStorageKey('name1'),
-            children: <Widget>[
-              ...data['Мои фото'].map((a) {
-                return Image.network(a);
-              }).toList(),
-            ],
-          ),
-          ListView(
-            key: PageStorageKey('name2'),
-            children: <Widget>[
-              ...data['Галерея'].map((b) {
-                return Image.network(b);
-              }).toList(),
-            ],
-          ),
-        ]),
+        body: TabBarView(
+          children: [
+            ListView.builder(
+                key: PageStorageKey('name1'),
+                itemCount: data['Мои фото'].length,
+                itemBuilder: (BuildContext context, index) {
+                  return Container(
+                    child: Image.network(
+                      data['Мои фото'][index],
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child;
+                        }
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }),
+            ListView.builder(
+                key: PageStorageKey('name2'),
+                itemCount: data['Галерея'].length,
+                itemBuilder: (BuildContext context, index) {
+                  return Container(
+                    child: Image.network(
+                      data['Галерея'][index],
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child;
+                        }
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }),
+          ],
+        ),
       ),
     );
   }

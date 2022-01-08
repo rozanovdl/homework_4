@@ -27,6 +27,35 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+Widget _myListWidget(keyName, photoData,){
+  return ListView.builder(
+      key: PageStorageKey(keyName),
+      itemCount: photoData.length,
+      itemBuilder: (BuildContext context, index) {
+        return Container(
+          height: 160,
+          child: Image.network(
+            photoData[index],
+            loadingBuilder: (BuildContext context, Widget child,
+                ImageChunkEvent? loadingProgress) {
+              if (loadingProgress == null) {
+                return child;
+              }
+              return Center(
+                child: CircularProgressIndicator(
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!
+                      : null,
+                ),
+              );
+            },
+          ),
+        );
+      });
+
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   final List<String> nav = ['Список 1', 'Список 2'];
   Map<String, dynamic> data = {
@@ -68,54 +97,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: TabBarView(
           children: [
-            ListView.builder(
-                key: PageStorageKey('name1'),
-                itemCount: data['Мои фото'].length,
-                itemBuilder: (BuildContext context, index) {
-                  return Container(
-                    child: Image.network(
-                      data['Мои фото'][index],
-                      loadingBuilder: (BuildContext context, Widget child,
-                          ImageChunkEvent? loadingProgress) {
-                        if (loadingProgress == null) {
-                          return child;
-                        }
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                }),
-            ListView.builder(
-                key: PageStorageKey('name2'),
-                itemCount: data['Галерея'].length,
-                itemBuilder: (BuildContext context, index) {
-                  return Container(
-                    child: Image.network(
-                      data['Галерея'][index],
-                      loadingBuilder: (BuildContext context, Widget child,
-                          ImageChunkEvent? loadingProgress) {
-                        if (loadingProgress == null) {
-                          return child;
-                        }
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                }),
+            _myListWidget('name1', data['Мои фото']),
+            _myListWidget('name2', data['Галерея']),
           ],
         ),
       ),
